@@ -22,7 +22,7 @@ class AchievementManager(context: Context) {
     val achievements = listOf(
 
         // ═══════════════════════════════════════
-        // 🌱 НАЧАЛО ПУТИ (первые шаги)
+        // 🌱 НАЧАЛО ПУТИ
         // ═══════════════════════════════════════
         Achievement("first_pomo", "Первый шаг", "Завершите первый помодоро", "🌱", "Начало") { stats, _ ->
             getTotalPomos(stats) >= 1
@@ -38,7 +38,7 @@ class AchievementManager(context: Context) {
         },
 
         // ═══════════════════════════════════════
-        // ⭐ КОЛИЧЕСТВО (всего помодоро)
+        // ⭐ КОЛИЧЕСТВО
         // ═══════════════════════════════════════
         Achievement("twenty_five", "Четверть сотни", "Завершите 25 помодоро", "⭐", "Количество") { stats, _ ->
             getTotalPomos(stats) >= 25
@@ -75,7 +75,7 @@ class AchievementManager(context: Context) {
         },
 
         // ═══════════════════════════════════════
-        // 📅 СЕРИЯ ДНЕЙ (стрик)
+        // 📅 СЕРИЯ ДНЕЙ
         // ═══════════════════════════════════════
         Achievement("streak_2", "Два дня подряд", "Серия из 2 дней", "📅", "Серия") { stats, _ ->
             calculateStreak(stats) >= 2
@@ -146,34 +146,34 @@ class AchievementManager(context: Context) {
         },
 
         // ═══════════════════════════════════════
-        // ⏰ ВРЕМЯ (часы в фокусе)
+        // ⏰ ВРЕМЯ (реальные минуты)
         // ═══════════════════════════════════════
         Achievement("hours_1", "Первый час", "1 час в фокусе всего", "⏰", "Время") { stats, _ ->
-            getTotalPomos(stats) * 25 >= 60
+            getTotalWorkMinutes(stats) >= 60
         },
         Achievement("hours_5", "5 часов", "5 часов в фокусе всего", "⏱️", "Время") { stats, _ ->
-            getTotalPomos(stats) * 25 >= 300
+            getTotalWorkMinutes(stats) >= 300
         },
         Achievement("hours_10", "10 часов", "10 часов в фокусе", "🕐", "Время") { stats, _ ->
-            getTotalPomos(stats) * 25 >= 600
+            getTotalWorkMinutes(stats) >= 600
         },
         Achievement("hours_24", "Сутки фокуса", "24 часа в фокусе", "🌍", "Время") { stats, _ ->
-            getTotalPomos(stats) * 25 >= 1440
+            getTotalWorkMinutes(stats) >= 1440
         },
         Achievement("hours_50", "50 часов", "50 часов в фокусе", "🕰️", "Время") { stats, _ ->
-            getTotalPomos(stats) * 25 >= 3000
+            getTotalWorkMinutes(stats) >= 3000
         },
         Achievement("hours_100", "100 часов", "100 часов чистого фокуса", "⌛", "Время") { stats, _ ->
-            getTotalPomos(stats) * 25 >= 6000
+            getTotalWorkMinutes(stats) >= 6000
         },
         Achievement("hours_250", "250 часов", "250 часов мастерства", "🧘", "Время") { stats, _ ->
-            getTotalPomos(stats) * 25 >= 15000
+            getTotalWorkMinutes(stats) >= 15000
         },
         Achievement("hours_500", "500 часов", "500 часов — ты эксперт", "🎓", "Время") { stats, _ ->
-            getTotalPomos(stats) * 25 >= 30000
+            getTotalWorkMinutes(stats) >= 30000
         },
         Achievement("hours_1000", "1000 часов", "1000 часов — путь мастера", "🐉", "Время") { stats, _ ->
-            getTotalPomos(stats) * 25 >= 60000
+            getTotalWorkMinutes(stats) >= 60000
         },
 
         // ═══════════════════════════════════════
@@ -199,7 +199,7 @@ class AchievementManager(context: Context) {
         },
 
         // ═══════════════════════════════════════
-        // 🌙 ОСОБЫЕ / СКРЫТЫЕ
+        // 🌙 ОСОБЫЕ
         // ═══════════════════════════════════════
         Achievement("early_bird", "Ранняя пташка", "Запустите помодоро до 7:00", "🐦", "Особые") { _, achPrefs ->
             achPrefs.getBoolean("early_bird_triggered", false)
@@ -239,7 +239,6 @@ class AchievementManager(context: Context) {
             (achPrefs.getStringSet("unlocked", emptySet())?.size ?: 0) >= 40
         },
         Achievement("collect_all", "Перфекционист", "Откройте все достижения", "🌈", "Мета") { _, achPrefs ->
-            // -1 because this one itself shouldn't count
             (achPrefs.getStringSet("unlocked", emptySet())?.size ?: 0) >= 59
         }
     )
@@ -263,28 +262,20 @@ class AchievementManager(context: Context) {
 
     fun isUnlocked(id: String): Boolean = id in getUnlockedIds()
 
-    // Call this when a pomodoro starts to check time-based achievements
     fun checkTimeTriggers(context: Context) {
         val cal = Calendar.getInstance()
         val hour = cal.get(Calendar.HOUR_OF_DAY)
         val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
 
-        // Early bird (before 7:00)
         if (hour < 7) {
             prefs.edit().putBoolean("early_bird_triggered", true).apply()
         }
-
-        // Night owl (after 23:00)
         if (hour >= 23) {
             prefs.edit().putBoolean("night_owl_triggered", true).apply()
         }
-
-        // Monday
         if (dayOfWeek == Calendar.MONDAY) {
             prefs.edit().putBoolean("first_monday_triggered", true).apply()
         }
-
-        // Weekend warrior (Sat/Sun with 5+ pomos)
         if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val todayCount = statsPrefs.getInt("pomo_${sdf.format(Date())}", 0)
@@ -294,40 +285,31 @@ class AchievementManager(context: Context) {
         }
     }
 
-    // Call after completing a pomodoro to check special triggers
     fun checkCompletionTriggers(context: Context) {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val todayCount = statsPrefs.getInt("pomo_${sdf.format(Date())}", 0)
         val settingsPrefs = context.getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
         val dailyGoal = settingsPrefs.getInt("daily_goal", 8)
 
-        // Double goal
         if (todayCount >= dailyGoal * 2) {
             prefs.edit().putBoolean("double_goal_triggered", true).apply()
         }
-
-        // Triple goal
         if (todayCount >= dailyGoal * 3) {
             prefs.edit().putBoolean("triple_goal_triggered", true).apply()
         }
 
-        // Weekend warrior
         val dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
         if ((dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) && todayCount >= 5) {
             prefs.edit().putBoolean("weekend_warrior_triggered", true).apply()
         }
 
-        // Comeback: check if there's a gap of 3+ days before today
         checkComeback()
-
-        // Perfect week
         checkPerfectWeek(context)
     }
 
     private fun checkComeback() {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val cal = Calendar.getInstance()
-        // Yesterday
         cal.add(Calendar.DAY_OF_YEAR, -1)
         var gapDays = 0
         for (i in 0..30) {
@@ -360,6 +342,15 @@ class AchievementManager(context: Context) {
         fun getMaxDailyPomos(prefs: SharedPreferences): Int {
             return prefs.all.filter { it.key.startsWith("pomo_") }
                 .values.maxOfOrNull { (it as? Int) ?: 0 } ?: 0
+        }
+
+        /**
+         * Реальные минуты в фокусе (накопленные)
+         * Если ключ total_work_minutes ещё не существует (старые данные) — фоллбэк на pomos * 25
+         */
+        fun getTotalWorkMinutes(prefs: SharedPreferences): Int {
+            val stored = prefs.getInt("total_work_minutes", -1)
+            return if (stored >= 0) stored else getTotalPomos(prefs) * 25
         }
 
         fun calculateStreak(prefs: SharedPreferences): Int {

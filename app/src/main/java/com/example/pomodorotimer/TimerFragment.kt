@@ -75,8 +75,7 @@ class TimerFragment : Fragment() {
                     updateTimerDisplay()
                     updateButtonState()
 
-                    // Update widget
-                    TimerWidget.updateAllWidgets(requireContext())
+                    try { TimerWidget.updateAllWidgets(requireContext()) } catch (_: Exception) {}
 
                     if (timeLeftMs <= 10000 && !isPulsing) startPulseAnimation()
                     if (timeLeftMs <= 10000) {
@@ -98,6 +97,10 @@ class TimerFragment : Fragment() {
 
                     if (currentMode == Mode.WORK) {
                         pomodoroSessionCount++
+                        // Сохраняем счётчик сессий
+                        requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
+                            .edit().putInt("session_count", pomodoroSessionCount).apply()
+
                         addPomodoroToStats()
                         updateStats()
                         checkAchievements()
@@ -105,13 +108,11 @@ class TimerFragment : Fragment() {
 
                         view?.postDelayed({
                             testMode = false
-                            // Every 4 pomodoros → long break
                             if (pomodoroSessionCount % 4 == 0) {
                                 switchMode(Mode.BREAK, useLongBreak = true)
                             } else {
                                 switchMode(Mode.BREAK)
                             }
-                            // Auto-start break
                             if (autoStartEnabled) {
                                 view?.postDelayed({ startTimer() }, 500)
                             }
@@ -121,13 +122,11 @@ class TimerFragment : Fragment() {
                         view?.postDelayed({
                             testMode = false
                             switchMode(Mode.WORK)
-                            // Auto-start work
                             if (autoStartEnabled) {
                                 view?.postDelayed({ startTimer() }, 500)
                             }
                         }, 2000)
                     }
-                    // Update widget
                     try { TimerWidget.updateAllWidgets(requireContext()) } catch (_: Exception) {}
                 }
                 "ACTION_SKIP_FROM_NOTIF" -> {
@@ -167,8 +166,7 @@ class TimerFragment : Fragment() {
         }
 
         // Load settings
-        val settingsPrefs = requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
-        autoStartEnabled = settingsPrefs.getBoolean("auto_start", true)
+        loadSettings()
 
         setupViews(view)
         setupControls()
@@ -197,6 +195,24 @@ class TimerFragment : Fragment() {
             updateTimerDisplay()
             updateButtonState()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Перечитываем настройки при возврате к фрагменту
+        loadSettings()
+        updateStats()
+    }
+
+    private fun loadSettings() {
+        val settingsPrefs = requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
+        autoStartEnabled = settingsPrefs.getBoolean("auto_start", true)
+        val longBreakMin = settingsPrefs.getInt("long_break_min", 15)
+        longBreakDuration = longBreakMin * 60 * 1000L
+        selectedWorkMin = settingsPrefs.getInt("work_minutes", 25)
+        workDuration = selectedWorkMin * 60 * 1000L
+        // Восстанавливаем счётчик сессий
+        pomodoroSessionCount = settingsPrefs.getInt("session_count", 0)
     }
 
     private fun setupViews(view: View) {
@@ -334,8 +350,7 @@ class TimerFragment : Fragment() {
     private fun showMotivationalQuote(isWorkComplete: Boolean) {
         val quote = if (isWorkComplete) MotivationalQuotes.getWorkQuote() else MotivationalQuotes.getBreakQuote()
         val ctx = context ?: return
-        val toast = Toast.makeText(ctx, quote, Toast.LENGTH_LONG)
-        toast.show()
+        Toast.makeText(ctx, quote, Toast.LENGTH_LONG).show()
     }
 
     // --- Achievements ---
@@ -381,7 +396,7 @@ class TimerFragment : Fragment() {
 
         AlertDialog.Builder(ctx, android.R.style.Theme_DeviceDefault_Dialog_Alert)
             .setView(container)
-            .setPositiveButton("Круто!") { d, _ -> d.dismiss() }
+            .setPositiveButton("Круто!") { dlg, _ -> dlg.dismiss() }
             .show()
     }
 
@@ -432,9 +447,9 @@ class TimerFragment : Fragment() {
         if (!prefs.getBoolean("vibration", true)) return
         try {
             val pattern = if (currentMode == Mode.WORK)
-                longArrayOf(0, 200, 100, 200, 100, 400)  // Strong for work
+                longArrayOf(0, 200, 100, 200, 100, 400)
             else
-                longArrayOf(0, 100, 80, 100)  // Gentle for break
+                longArrayOf(0, 100, 80, 100)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator?.vibrate(VibrationEffect.createWaveform(pattern, -1))
@@ -456,10 +471,29 @@ class TimerFragment : Fragment() {
         val workChips = mapOf(chipWork15 to 15, chipWork25 to 25, chipWork45 to 45)
         val breakChips = mapOf(chipBreak5 to 5, chipBreak10 to 10, chipBreak15 to 15)
 
+        // Восстанавливаем визуальное состояние чипов по сохранённым настройкам
+        workChips.forEach { (chip, min) ->
+            if (min == selectedWorkMin) {
+                chip.setBackgroundResource(R.drawable.bg_chip_active); chip.setTextColor(Color.WHITE)
+            } else {
+                chip.setBackgroundResource(R.drawable.bg_chip_inactive); chip.setTextColor(Color.parseColor("#999999"))
+            }
+        }
+        breakChips.forEach { (chip, min) ->
+            if (min == selectedBreakMin) {
+                chip.setBackgroundResource(R.drawable.bg_chip_active); chip.setTextColor(Color.WHITE)
+            } else {
+                chip.setBackgroundResource(R.drawable.bg_chip_inactive); chip.setTextColor(Color.parseColor("#999999"))
+            }
+        }
+
         workChips.forEach { (chip, min) ->
             chip.setOnClickListener {
                 if (isRunning) return@setOnClickListener
                 selectedWorkMin = min; workDuration = min * 60 * 1000L
+                // Сохраняем выбранную длительность фокуса
+                requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
+                    .edit().putInt("work_minutes", min).apply()
                 setActiveChip(workChips, chip)
                 if (currentMode == Mode.WORK) resetTimer()
                 updateStats()
@@ -507,6 +541,10 @@ class TimerFragment : Fragment() {
     private fun addPomodoroToStats() {
         val key = getTodayKey(); val prefs = getPrefs()
         prefs.edit().putInt(key, prefs.getInt(key, 0) + 1).apply()
+
+        // Сохраняем реальные отработанные минуты
+        val totalMin = prefs.getInt("total_work_minutes", 0) + selectedWorkMin
+        prefs.edit().putInt("total_work_minutes", totalMin).apply()
     }
 
     private fun updateStats() {
@@ -515,7 +553,6 @@ class TimerFragment : Fragment() {
         val todayCount = getPrefs().getInt(getTodayKey(), 0)
         tvTodayCount.text = todayCount.toString()
 
-        // Update goal text
         view?.findViewById<TextView>(R.id.tvDailyGoal)?.text = " / $dailyGoal сессий"
 
         buildMiniChart()

@@ -36,17 +36,14 @@ class TimerWidget : AppWidgetProvider() {
         when (intent.action) {
             ACTION_WIDGET_START -> {
                 if (TimerService.isRunning && !TimerService.isPaused) {
-                    // Pause
                     context.startService(Intent(context, TimerService::class.java).apply {
                         action = TimerService.ACTION_PAUSE
                     })
                 } else if (TimerService.isRunning && TimerService.isPaused) {
-                    // Resume
                     context.startService(Intent(context, TimerService::class.java).apply {
                         action = TimerService.ACTION_RESUME
                     })
                 } else {
-                    // Start new — open app
                     val openIntent = Intent(context, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                     }
@@ -71,9 +68,6 @@ class TimerWidget : AppWidgetProvider() {
             timeText = String.format("%02d:%02d", secs / 60, secs % 60)
             btnText = if (TimerService.isPaused) "▶" else "⏸"
         } else {
-            val prefs = context.getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
-            val todayCount = context.getSharedPreferences("pomodoro_stats", Context.MODE_PRIVATE)
-                .getInt("pomo_${java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())}", 0)
             timeText = "25:00"
             btnText = "▶"
         }

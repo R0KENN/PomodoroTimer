@@ -41,15 +41,15 @@ class StatsFragment : Fragment() {
         val bestDay = AchievementManager.getMaxDailyPomos(getPrefs())
         val daysWithPomos = getPrefs().all.filter { it.key.startsWith("pomo_") && (it.value as? Int ?: 0) > 0 }.size
         val avgPerDay = if (daysWithPomos > 0) allPomos.toFloat() / daysWithPomos else 0f
-        val settingsPrefs = requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
-        val workMin = settingsPrefs.getInt("work_minutes", 25)
+
+        // Используем реальные накопленные минуты
+        val totalMinutes = AchievementManager.getTotalWorkMinutes(getPrefs())
 
         view.findViewById<TextView>(R.id.tvStatsToday).text = todayCount.toString()
         view.findViewById<TextView>(R.id.tvStatsWeek).text = weekTotal.toString()
-        view.findViewById<TextView>(R.id.tvStatsTotalMin).text = "${allPomos * workMin}"
+        view.findViewById<TextView>(R.id.tvStatsTotalMin).text = totalMinutes.toString()
         view.findViewById<TextView>(R.id.tvStatsStreak).text = streak.toString()
 
-        // Extended stats
         view.findViewById<TextView>(R.id.tvStatsTotalAll)?.text = allPomos.toString()
         view.findViewById<TextView>(R.id.tvStatsBestDay)?.text = bestDay.toString()
         view.findViewById<TextView>(R.id.tvStatsAvgDay)?.text = String.format("%.1f", avgPerDay)
