@@ -7,289 +7,105 @@
     android:orientation="vertical"
     android:gravity="center_horizontal">
 
-    <!-- Spacer top -->
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="0.8" />
+    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="0.8" />
 
-    <!-- Timer Area — ещё больше -->
-    <FrameLayout
-        android:layout_width="340dp"
-        android:layout_height="340dp">
-
-        <FrameLayout
-            android:id="@+id/timerCanvasContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <LinearLayout
-            android:id="@+id/timerCenterText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/tvTimer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="25:00"
-                android:textColor="@color/text_primary"
-                android:textSize="86sp"
-                android:fontFamily="sans-serif-thin"
-                android:letterSpacing="-0.04"
-                tools:text="25:00" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_label_pill"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
+    <FrameLayout android:layout_width="340dp" android:layout_height="340dp">
+        <FrameLayout android:id="@+id/timerCanvasContainer" android:layout_width="match_parent" android:layout_height="match_parent" />
+        <LinearLayout android:id="@+id/timerCenterText" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
+            <TextView android:id="@+id/tvTimer" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="25:00" android:textColor="@color/text_primary" android:textSize="86sp"
+                android:fontFamily="sans-serif-thin" android:letterSpacing="-0.04" tools:text="25:00" />
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" android:background="@drawable/bg_label_pill"
+                android:paddingStart="14dp" android:paddingEnd="14dp" android:paddingTop="5dp" android:paddingBottom="5dp"
                 android:gravity="center_vertical">
-
-                <View
-                    android:id="@+id/dotIndicator"
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@color/accent" />
-
-                <TextView
-                    android:id="@+id/tvTimerLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ФОКУС"
-                    android:textColor="@color/accent"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:letterSpacing="0.2" />
+                <View android:id="@+id/dotIndicator" android:layout_width="6dp" android:layout_height="6dp"
+                    android:layout_marginEnd="8dp" android:background="@color/accent" />
+                <TextView android:id="@+id/tvTimerLabel" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="ФОКУС" android:textColor="@color/accent" android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium" android:letterSpacing="0.2" />
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 
-    <!-- Spacer between timer and controls -->
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="0.6" />
+    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="0.6" />
 
-    <!-- Controls -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical">
-
-        <ImageButton
-            android:id="@+id/btnReset"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:src="@drawable/ic_reset"
-            android:background="@drawable/bg_btn_glass_circle"
-            android:scaleType="centerInside"
-            android:contentDescription="Сбросить"
-            android:layout_marginEnd="18dp" />
-
-        <LinearLayout
-            android:id="@+id/btnStartPause"
-            android:layout_width="170dp"
-            android:layout_height="54dp"
-            android:background="@drawable/bg_btn_primary"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true"
-            android:elevation="6dp">
-
-            <ImageView
-                android:id="@+id/ivBtnIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_play"
-                android:layout_marginEnd="10dp" />
-
-            <TextView
-                android:id="@+id/tvBtnLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Старт"
-                android:textColor="#FF582200"
-                android:textSize="17sp"
-                android:fontFamily="sans-serif-medium" />
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical">
+        <ImageButton android:id="@+id/btnReset" android:layout_width="52dp" android:layout_height="52dp"
+            android:src="@drawable/ic_reset" android:background="@drawable/bg_btn_glass_circle"
+            android:scaleType="centerInside" android:contentDescription="Сбросить" android:layout_marginEnd="18dp" />
+        <LinearLayout android:id="@+id/btnStartPause" android:layout_width="170dp" android:layout_height="54dp"
+            android:background="@drawable/bg_btn_primary" android:gravity="center" android:clickable="true"
+            android:focusable="true" android:elevation="6dp">
+            <ImageView android:id="@+id/ivBtnIcon" android:layout_width="20dp" android:layout_height="20dp"
+                android:src="@drawable/ic_play" android:layout_marginEnd="10dp" />
+            <TextView android:id="@+id/tvBtnLabel" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Старт" android:textColor="#FF582200" android:textSize="17sp" android:fontFamily="sans-serif-medium" />
         </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/btnSkip"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:src="@drawable/ic_skip"
-            android:background="@drawable/bg_btn_glass_circle"
-            android:scaleType="centerInside"
-            android:contentDescription="Пропустить"
-            android:layout_marginStart="18dp" />
+        <ImageButton android:id="@+id/btnSkip" android:layout_width="52dp" android:layout_height="52dp"
+            android:src="@drawable/ic_skip" android:background="@drawable/bg_btn_glass_circle"
+            android:scaleType="centerInside" android:contentDescription="Пропустить" android:layout_marginStart="18dp" />
     </LinearLayout>
 
-    <!-- Spacer between controls and cards -->
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="0.5" />
+    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="0.5" />
 
     <!-- Progress Card -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/bg_glass_panel"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ежедневный прогресс"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
-                    android:fontFamily="sans-serif-light" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:id="@+id/tvTodayCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/text_primary"
-                        android:textSize="26sp"
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginStart="20dp" android:layout_marginEnd="20dp" android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_glass_panel" android:orientation="vertical" android:padding="20dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center_vertical" android:layout_marginBottom="12dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Ежедневный прогресс" android:textColor="@color/text_secondary"
+                    android:textSize="13sp" android:fontFamily="sans-serif-light" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:gravity="center_vertical" android:layout_marginTop="4dp">
+                    <TextView android:id="@+id/tvTodayCount" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="0" android:textColor="@color/text_primary" android:textSize="26sp"
                         android:fontFamily="sans-serif-light" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" / 8 сессий"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
+                    <TextView android:id="@+id/tvDailyGoal" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text=" / 8 сессий" android:textColor="@color/text_secondary" android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
-
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/ic_fire" />
+            <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_fire" />
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/miniChart"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:gravity="bottom" />
-
-        <LinearLayout
-            android:id="@+id/miniChartLabels"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp" />
+        <LinearLayout android:id="@+id/miniChart" android:layout_width="match_parent" android:layout_height="40dp" android:gravity="bottom" />
+        <LinearLayout android:id="@+id/miniChartLabels" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" />
     </LinearLayout>
 
     <!-- Chips -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/bg_glass_panel"
-        android:orientation="vertical"
-        android:padding="14dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:text="ФОКУС"
-                android:textColor="@color/text_dim"
-                android:textSize="9sp"
-                android:fontFamily="sans-serif-medium"
-                android:letterSpacing="0.15" />
-
-            <TextView android:id="@+id/chipWork15"
-                android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
-                android:layout_marginEnd="6dp" android:background="@drawable/bg_chip_inactive"
-                android:gravity="center" android:text="15 мин" android:textColor="@color/text_secondary"
-                android:textSize="13sp" android:fontFamily="sans-serif-medium" />
-
-            <TextView android:id="@+id/chipWork25"
-                android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
-                android:layout_marginEnd="6dp" android:background="@drawable/bg_chip_active"
-                android:gravity="center" android:text="25 мин" android:textColor="@color/white"
-                android:textSize="13sp" android:fontFamily="sans-serif-medium" />
-
-            <TextView android:id="@+id/chipWork45"
-                android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
-                android:background="@drawable/bg_chip_inactive"
-                android:gravity="center" android:text="45 мин" android:textColor="@color/text_secondary"
-                android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginStart="20dp" android:layout_marginEnd="20dp" android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_glass_panel" android:orientation="vertical" android:padding="14dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center_vertical" android:layout_marginBottom="8dp">
+            <TextView android:layout_width="48dp" android:layout_height="wrap_content" android:text="ФОКУС"
+                android:textColor="@color/text_dim" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:letterSpacing="0.15" />
+            <TextView android:id="@+id/chipWork15" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
+                android:layout_marginEnd="6dp" android:background="@drawable/bg_chip_inactive" android:gravity="center"
+                android:text="15 мин" android:textColor="@color/text_secondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+            <TextView android:id="@+id/chipWork25" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
+                android:layout_marginEnd="6dp" android:background="@drawable/bg_chip_active" android:gravity="center"
+                android:text="25 мин" android:textColor="@color/white" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+            <TextView android:id="@+id/chipWork45" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
+                android:background="@drawable/bg_chip_inactive" android:gravity="center"
+                android:text="45 мин" android:textColor="@color/text_secondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:text="ОТДЫХ"
-                android:textColor="@color/text_dim"
-                android:textSize="9sp"
-                android:fontFamily="sans-serif-medium"
-                android:letterSpacing="0.15" />
-
-            <TextView android:id="@+id/chipBreak5"
-                android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
-                android:layout_marginEnd="6dp" android:background="@drawable/bg_chip_active"
-                android:gravity="center" android:text="5 мин" android:textColor="@color/white"
-                android:textSize="13sp" android:fontFamily="sans-serif-medium" />
-
-            <TextView android:id="@+id/chipBreak10"
-                android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
-                android:layout_marginEnd="6dp" android:background="@drawable/bg_chip_inactive"
-                android:gravity="center" android:text="10 мин" android:textColor="@color/text_secondary"
-                android:textSize="13sp" android:fontFamily="sans-serif-medium" />
-
-            <TextView android:id="@+id/chipBreak15"
-                android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
-                android:background="@drawable/bg_chip_inactive"
-                android:gravity="center" android:text="15 мин" android:textColor="@color/text_secondary"
-                android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <TextView android:layout_width="48dp" android:layout_height="wrap_content" android:text="ОТДЫХ"
+                android:textColor="@color/text_dim" android:textSize="9sp" android:fontFamily="sans-serif-medium" android:letterSpacing="0.15" />
+            <TextView android:id="@+id/chipBreak5" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
+                android:layout_marginEnd="6dp" android:background="@drawable/bg_chip_active" android:gravity="center"
+                android:text="5 мин" android:textColor="@color/white" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+            <TextView android:id="@+id/chipBreak10" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
+                android:layout_marginEnd="6dp" android:background="@drawable/bg_chip_inactive" android:gravity="center"
+                android:text="10 мин" android:textColor="@color/text_secondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+            <TextView android:id="@+id/chipBreak15" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1"
+                android:background="@drawable/bg_chip_inactive" android:gravity="center"
+                android:text="15 мин" android:textColor="@color/text_secondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
         </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>

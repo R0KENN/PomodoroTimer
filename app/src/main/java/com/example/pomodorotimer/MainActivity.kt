@@ -12,6 +12,7 @@ class MainActivity : AppCompatActivity() {
     private var currentTab = 0
     private val timerFragment = TimerFragment()
     private val statsFragment = StatsFragment()
+    private val achievementsFragment = AchievementsFragment()
     private val settingsFragment = SettingsFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +28,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.navStats).setOnClickListener {
             if (currentTab != 1) { showFragment(statsFragment); updateNav(1); currentTab = 1 }
         }
+        findViewById<View>(R.id.navAchievements).setOnClickListener {
+            if (currentTab != 2) { showFragment(achievementsFragment); updateNav(2); currentTab = 2 }
+        }
         findViewById<View>(R.id.navSettings).setOnClickListener {
-            if (currentTab != 2) { showFragment(settingsFragment); updateNav(2); currentTab = 2 }
+            if (currentTab != 3) { showFragment(settingsFragment); updateNav(3); currentTab = 3 }
         }
     }
 
@@ -40,21 +44,19 @@ class MainActivity : AppCompatActivity() {
         val bgs = listOf(
             findViewById<View>(R.id.navTimerBg),
             findViewById<View>(R.id.navStatsBg),
+            findViewById<View>(R.id.navAchievementsBg),
             findViewById<View>(R.id.navSettingsBg)
         )
         val icons = listOf(
             findViewById<ImageView>(R.id.navTimerIcon),
             findViewById<ImageView>(R.id.navStatsIcon),
+            findViewById<ImageView>(R.id.navAchievementsIcon),
             findViewById<ImageView>(R.id.navSettingsIcon)
         )
         val activeColor = Color.parseColor("#F97316")
         val inactiveColor = Color.parseColor("#66FFFFFF")
 
-        bgs.forEachIndexed { i, bg ->
-            bg.visibility = if (i == active) View.VISIBLE else View.INVISIBLE
-        }
-        icons.forEachIndexed { i, icon ->
-            icon.setColorFilter(if (i == active) activeColor else inactiveColor)
-        }
+        bgs.forEachIndexed { i, bg -> bg.visibility = if (i == active) View.VISIBLE else View.INVISIBLE }
+        icons.forEachIndexed { i, icon -> icon.setColorFilter(if (i == active) activeColor else inactiveColor) }
     }
 }

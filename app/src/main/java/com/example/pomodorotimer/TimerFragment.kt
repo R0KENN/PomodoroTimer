@@ -2,6 +2,7 @@ package com.example.pomodorotimer
 
 import android.Manifest
 import android.animation.ValueAnimator
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,6 +12,7 @@ import android.graphics.Color
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.*
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +37,7 @@ class TimerFragment : Fragment() {
 
     private var workDuration = 25 * 60 * 1000L
     private var breakDuration = 5 * 60 * 1000L
+    private var longBreakDuration = 15 * 60 * 1000L
     private var currentMode = Mode.WORK
     private var timeLeftMs = 25 * 60 * 1000L
     private var totalTimeMs = 25 * 60 * 1000L
@@ -51,6 +54,12 @@ class TimerFragment : Fragment() {
     private var selectedWorkMin = 25
     private var selectedBreakMin = 5
 
+    // Pomodoro counter for long break
+    private var pomodoroSessionCount = 0
+
+    // Auto-start setting
+    private var autoStartEnabled = true
+
     enum class Mode { WORK, BREAK }
 
     private val tickReceiver = object : BroadcastReceiver() {
@@ -66,14 +75,13 @@ class TimerFragment : Fragment() {
                     updateTimerDisplay()
                     updateButtonState()
 
-                    if (timeLeftMs <= 10000 && !isPulsing) {
-                        startPulseAnimation()
-                    }
+                    // Update widget
+                    TimerWidget.updateAllWidgets(requireContext())
+
+                    if (timeLeftMs <= 10000 && !isPulsing) startPulseAnimation()
                     if (timeLeftMs <= 10000) {
                         val msInSecond = timeLeftMs % 1000
-                        if (msInSecond in 0..550) {
-                            playTick()
-                        }
+                        if (msInSecond in 0..550) playTick()
                     }
                 }
                 TimerService.ACTION_FINISHED -> {
@@ -89,18 +97,38 @@ class TimerFragment : Fragment() {
                     doVibrate()
 
                     if (currentMode == Mode.WORK) {
+                        pomodoroSessionCount++
                         addPomodoroToStats()
                         updateStats()
+                        checkAchievements()
+                        showMotivationalQuote(true)
+
                         view?.postDelayed({
                             testMode = false
-                            switchMode(Mode.BREAK)
-                        }, 1500)
+                            // Every 4 pomodoros → long break
+                            if (pomodoroSessionCount % 4 == 0) {
+                                switchMode(Mode.BREAK, useLongBreak = true)
+                            } else {
+                                switchMode(Mode.BREAK)
+                            }
+                            // Auto-start break
+                            if (autoStartEnabled) {
+                                view?.postDelayed({ startTimer() }, 500)
+                            }
+                        }, 2000)
                     } else {
+                        showMotivationalQuote(false)
                         view?.postDelayed({
                             testMode = false
                             switchMode(Mode.WORK)
-                        }, 1500)
+                            // Auto-start work
+                            if (autoStartEnabled) {
+                                view?.postDelayed({ startTimer() }, 500)
+                            }
+                        }, 2000)
                     }
+                    // Update widget
+                    try { TimerWidget.updateAllWidgets(requireContext()) } catch (_: Exception) {}
                 }
                 "ACTION_SKIP_FROM_NOTIF" -> {
                     isRunning = false
@@ -109,7 +137,6 @@ class TimerFragment : Fragment() {
                     stopPulseAnimation()
                     if (currentMode == Mode.WORK) switchMode(Mode.BREAK) else switchMode(Mode.WORK)
                 }
-
             }
         }
     }
@@ -121,7 +148,6 @@ class TimerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Request notification permission on Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -130,9 +156,7 @@ class TimerFragment : Fragment() {
             }
         }
 
-        try {
-            toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
-        } catch (_: Exception) {}
+        try { toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100) } catch (_: Exception) {}
 
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vm = requireContext().getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
@@ -142,13 +166,16 @@ class TimerFragment : Fragment() {
             requireContext().getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
         }
 
+        // Load settings
+        val settingsPrefs = requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
+        autoStartEnabled = settingsPrefs.getBoolean("auto_start", true)
+
         setupViews(view)
         setupControls()
         setupChips(view)
         updateTimerDisplay()
         updateStats()
 
-        // Register receiver
         val filter = IntentFilter().apply {
             addAction(TimerService.ACTION_TICK)
             addAction(TimerService.ACTION_FINISHED)
@@ -160,7 +187,6 @@ class TimerFragment : Fragment() {
             requireContext().registerReceiver(tickReceiver, filter)
         }
 
-        // Restore state if service is running
         if (TimerService.isRunning) {
             isRunning = true
             isPaused = TimerService.isPaused
@@ -189,37 +215,27 @@ class TimerFragment : Fragment() {
         val container = view.findViewById<FrameLayout>(R.id.timerCanvasContainer)
         container.addView(timerRingView)
 
-        timerCenterText.setOnLongClickListener {
-            toggleTestMode()
-            true
-        }
+        timerCenterText.setOnLongClickListener { toggleTestMode(); true }
     }
 
     private fun toggleTestMode() {
         if (isRunning) return
         testMode = !testMode
         if (testMode) {
-            timeLeftMs = TEST_DURATION
-            totalTimeMs = TEST_DURATION
-            Toast.makeText(requireContext(), "Тестовый режим: 10 сек", Toast.LENGTH_SHORT).show()
+            timeLeftMs = TEST_DURATION; totalTimeMs = TEST_DURATION
+            Toast.makeText(requireContext(), "Тест: 10 сек", Toast.LENGTH_SHORT).show()
         } else {
-            timeLeftMs = workDuration
-            totalTimeMs = workDuration
+            timeLeftMs = workDuration; totalTimeMs = workDuration
             Toast.makeText(requireContext(), "Обычный режим", Toast.LENGTH_SHORT).show()
         }
-        timerRingView.progress = 1f
-        updateTimerDisplay()
+        timerRingView.progress = 1f; updateTimerDisplay()
     }
 
     private fun setupControls() {
         btnStartPause.setOnClickListener {
-            if (!isRunning) {
-                startTimer()
-            } else if (!isPaused) {
-                pauseTimer()
-            } else {
-                resumeTimer()
-            }
+            if (!isRunning) startTimer()
+            else if (!isPaused) pauseTimer()
+            else resumeTimer()
         }
         btnReset.setOnClickListener { resetTimer() }
         btnSkip.setOnClickListener { skipToNext() }
@@ -227,10 +243,12 @@ class TimerFragment : Fragment() {
 
     private fun startTimer() {
         if (timeLeftMs <= 0) return
-        isRunning = true
-        isPaused = false
+        isRunning = true; isPaused = false
         updateButtonState()
         timerRingView.isTimerRunning = true
+
+        // Check time-based achievement triggers
+        AchievementManager(requireContext()).checkTimeTriggers(requireContext())
 
         val intent = Intent(requireContext(), TimerService::class.java).apply {
             action = TimerService.ACTION_START
@@ -242,88 +260,60 @@ class TimerFragment : Fragment() {
     }
 
     private fun pauseTimer() {
-        isPaused = true
-        timerRingView.isTimerRunning = false
-        updateButtonState()
-        stopPulseAnimation()
-
-        val intent = Intent(requireContext(), TimerService::class.java).apply {
+        isPaused = true; timerRingView.isTimerRunning = false
+        updateButtonState(); stopPulseAnimation()
+        requireContext().startService(Intent(requireContext(), TimerService::class.java).apply {
             action = TimerService.ACTION_PAUSE
-        }
-        requireContext().startService(intent)
+        })
     }
 
     private fun resumeTimer() {
-        isPaused = false
-        timerRingView.isTimerRunning = true
-        updateButtonState()
-
-        val intent = Intent(requireContext(), TimerService::class.java).apply {
+        isPaused = false; timerRingView.isTimerRunning = true; updateButtonState()
+        requireContext().startService(Intent(requireContext(), TimerService::class.java).apply {
             action = TimerService.ACTION_RESUME
-        }
-        requireContext().startService(intent)
+        })
     }
 
     private fun resetTimer() {
-        isRunning = false
-        isPaused = false
-        isPulsing = false
-        testMode = false
-        stopPulseAnimation()
-        timerRingView.isTimerRunning = false
-
-        val intent = Intent(requireContext(), TimerService::class.java).apply {
+        isRunning = false; isPaused = false; isPulsing = false; testMode = false
+        stopPulseAnimation(); timerRingView.isTimerRunning = false
+        requireContext().startService(Intent(requireContext(), TimerService::class.java).apply {
             action = TimerService.ACTION_RESET
-        }
-        requireContext().startService(intent)
-
+        })
         timeLeftMs = if (currentMode == Mode.WORK) workDuration else breakDuration
         totalTimeMs = timeLeftMs
-        timerRingView.progress = 1f
-        updateTimerDisplay()
-        updateButtonState()
+        timerRingView.progress = 1f; updateTimerDisplay(); updateButtonState()
     }
 
     private fun skipToNext() {
-        val intent = Intent(requireContext(), TimerService::class.java).apply {
+        requireContext().startService(Intent(requireContext(), TimerService::class.java).apply {
             action = TimerService.ACTION_RESET
-        }
-        requireContext().startService(intent)
-
-        isRunning = false
-        isPaused = false
-        testMode = false
-        stopPulseAnimation()
-        timerRingView.isTimerRunning = false
-
+        })
+        isRunning = false; isPaused = false; testMode = false
+        stopPulseAnimation(); timerRingView.isTimerRunning = false
         if (currentMode == Mode.WORK) switchMode(Mode.BREAK) else switchMode(Mode.WORK)
     }
 
-    private fun switchMode(mode: Mode) {
+    private fun switchMode(mode: Mode, useLongBreak: Boolean = false) {
         currentMode = mode
-        isRunning = false
-        isPaused = false
-        isPulsing = false
+        isRunning = false; isPaused = false; isPulsing = false
         timerRingView.isTimerRunning = false
 
         if (mode == Mode.WORK) {
-            timeLeftMs = workDuration
-            totalTimeMs = workDuration
+            timeLeftMs = workDuration; totalTimeMs = workDuration
             timerRingView.isBreakMode = false
             tvTimerLabel.text = "ФОКУС"
             tvTimerLabel.setTextColor(Color.parseColor("#F97316"))
             view?.findViewById<View>(R.id.dotIndicator)?.setBackgroundColor(Color.parseColor("#F97316"))
         } else {
-            timeLeftMs = breakDuration
-            totalTimeMs = breakDuration
+            val dur = if (useLongBreak) longBreakDuration else breakDuration
+            timeLeftMs = dur; totalTimeMs = dur
             timerRingView.isBreakMode = true
-            tvTimerLabel.text = "ОТДЫХ"
+            tvTimerLabel.text = if (useLongBreak) "ДЛИННЫЙ ОТДЫХ" else "ОТДЫХ"
             tvTimerLabel.setTextColor(Color.parseColor("#22C55E"))
             view?.findViewById<View>(R.id.dotIndicator)?.setBackgroundColor(Color.parseColor("#22C55E"))
         }
-        timerRingView.progress = 1f
-        updateTimerDisplay()
-        updateButtonState()
+        timerRingView.progress = 1f; updateTimerDisplay(); updateButtonState()
     }
 
     private fun updateTimerDisplay() {
@@ -333,24 +323,76 @@ class TimerFragment : Fragment() {
 
     private fun updateButtonState() {
         if (isRunning && !isPaused) {
-            tvBtnLabel.text = "Пауза"
-            ivBtnIcon.setImageResource(R.drawable.ic_pause)
+            tvBtnLabel.text = "Пауза"; ivBtnIcon.setImageResource(R.drawable.ic_pause)
         } else {
-            tvBtnLabel.text = if (isPaused) "Продолжить" else "Старт"
+            tvBtnLabel.text = if (isPaused) "Далее" else "Старт"
             ivBtnIcon.setImageResource(R.drawable.ic_play)
         }
     }
 
+    // --- Motivational Quotes ---
+    private fun showMotivationalQuote(isWorkComplete: Boolean) {
+        val quote = if (isWorkComplete) MotivationalQuotes.getWorkQuote() else MotivationalQuotes.getBreakQuote()
+        val ctx = context ?: return
+        val toast = Toast.makeText(ctx, quote, Toast.LENGTH_LONG)
+        toast.show()
+    }
+
+    // --- Achievements ---
+    private fun checkAchievements() {
+        val ctx = context ?: return
+        val manager = AchievementManager(ctx)
+        manager.checkCompletionTriggers(ctx)
+        val newlyUnlocked = manager.checkAndUnlockNew()
+        for (achievement in newlyUnlocked) {
+            showAchievementUnlocked(achievement)
+        }
+    }
+
+    private fun showAchievementUnlocked(achievement: AchievementManager.Achievement) {
+        val ctx = context ?: return
+        val d = resources.displayMetrics.density
+
+        val container = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding((32 * d).toInt(), (24 * d).toInt(), (32 * d).toInt(), (24 * d).toInt())
+        }
+
+        val emoji = TextView(ctx).apply {
+            text = achievement.icon; textSize = 48f; gravity = Gravity.CENTER
+        }
+        val title = TextView(ctx).apply {
+            text = "Достижение!"; textSize = 20f; gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#F97316"))
+            setPadding(0, (12 * d).toInt(), 0, (8 * d).toInt())
+        }
+        val name = TextView(ctx).apply {
+            text = achievement.title; textSize = 16f; gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+        }
+        val desc = TextView(ctx).apply {
+            text = achievement.description; textSize = 13f; gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#99FFFFFF"))
+            setPadding(0, (4 * d).toInt(), 0, 0)
+        }
+
+        container.addView(emoji); container.addView(title); container.addView(name); container.addView(desc)
+
+        AlertDialog.Builder(ctx, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            .setView(container)
+            .setPositiveButton("Круто!") { d, _ -> d.dismiss() }
+            .show()
+    }
+
+    // --- Pulse Animation ---
     private fun startPulseAnimation() {
         isPulsing = true
         pulseAnimator = ValueAnimator.ofFloat(1f, 1.06f).apply {
-            duration = 500
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
+            duration = 500; repeatCount = ValueAnimator.INFINITE; repeatMode = ValueAnimator.REVERSE
             addUpdateListener {
                 val scale = it.animatedValue as Float
-                timerCenterText.scaleX = scale
-                timerCenterText.scaleY = scale
+                timerCenterText.scaleX = scale; timerCenterText.scaleY = scale
                 timerRingView.glowIntensity = (scale - 1f) / 0.06f
             }
             start()
@@ -358,37 +400,51 @@ class TimerFragment : Fragment() {
     }
 
     private fun stopPulseAnimation() {
-        pulseAnimator?.cancel()
-        isPulsing = false
-        timerCenterText.scaleX = 1f
-        timerCenterText.scaleY = 1f
+        pulseAnimator?.cancel(); isPulsing = false
+        timerCenterText.scaleX = 1f; timerCenterText.scaleY = 1f
         timerRingView.glowIntensity = 0f
     }
 
+    // --- Sound ---
     private fun playTick() {
+        val prefs = requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("sound", true)) return
         try { toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 50) } catch (_: Exception) {}
     }
 
     private fun playCompletionSound() {
+        val prefs = requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("sound", true)) return
         try {
-            toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP2, 200)
-            view?.postDelayed({ toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP2, 200) }, 300)
+            val toneType = if (currentMode == Mode.WORK)
+                ToneGenerator.TONE_PROP_BEEP2
+            else
+                ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD
+
+            toneGenerator?.startTone(toneType, 200)
+            view?.postDelayed({ toneGenerator?.startTone(toneType, 200) }, 300)
             view?.postDelayed({ toneGenerator?.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 400) }, 600)
         } catch (_: Exception) {}
     }
 
     private fun doVibrate() {
+        val prefs = requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("vibration", true)) return
         try {
+            val pattern = if (currentMode == Mode.WORK)
+                longArrayOf(0, 200, 100, 200, 100, 400)  // Strong for work
+            else
+                longArrayOf(0, 100, 80, 100)  // Gentle for break
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 200, 100, 200, 100, 400), -1))
+                vibrator?.vibrate(VibrationEffect.createWaveform(pattern, -1))
             } else {
-                @Suppress("DEPRECATION")
-                vibrator?.vibrate(longArrayOf(0, 200, 100, 200, 100, 400), -1)
+                @Suppress("DEPRECATION") vibrator?.vibrate(pattern, -1)
             }
         } catch (_: Exception) {}
     }
 
-    // Chips
+    // --- Chips ---
     private fun setupChips(view: View) {
         val chipWork15 = view.findViewById<TextView>(R.id.chipWork15)
         val chipWork25 = view.findViewById<TextView>(R.id.chipWork25)
@@ -403,8 +459,7 @@ class TimerFragment : Fragment() {
         workChips.forEach { (chip, min) ->
             chip.setOnClickListener {
                 if (isRunning) return@setOnClickListener
-                selectedWorkMin = min
-                workDuration = min * 60 * 1000L
+                selectedWorkMin = min; workDuration = min * 60 * 1000L
                 setActiveChip(workChips, chip)
                 if (currentMode == Mode.WORK) resetTimer()
                 updateStats()
@@ -413,8 +468,7 @@ class TimerFragment : Fragment() {
         breakChips.forEach { (chip, min) ->
             chip.setOnClickListener {
                 if (isRunning) return@setOnClickListener
-                selectedBreakMin = min
-                breakDuration = min * 60 * 1000L
+                selectedBreakMin = min; breakDuration = min * 60 * 1000L
                 setActiveChip(breakChips, chip)
                 if (currentMode == Mode.BREAK) resetTimer()
             }
@@ -424,16 +478,14 @@ class TimerFragment : Fragment() {
     private fun setActiveChip(chips: Map<TextView, Int>, active: TextView) {
         chips.keys.forEach { c ->
             if (c == active) {
-                c.setBackgroundResource(R.drawable.bg_chip_active)
-                c.setTextColor(Color.WHITE)
+                c.setBackgroundResource(R.drawable.bg_chip_active); c.setTextColor(Color.WHITE)
             } else {
-                c.setBackgroundResource(R.drawable.bg_chip_inactive)
-                c.setTextColor(Color.parseColor("#999999"))
+                c.setBackgroundResource(R.drawable.bg_chip_inactive); c.setTextColor(Color.parseColor("#999999"))
             }
         }
     }
 
-    // Stats
+    // --- Stats ---
     private fun getPrefs() = requireContext().getSharedPreferences("pomodoro_stats", Context.MODE_PRIVATE)
 
     private fun getTodayKey(): String {
@@ -448,21 +500,24 @@ class TimerFragment : Fragment() {
         val dow = cal.get(java.util.Calendar.DAY_OF_WEEK)
         val fromMon = if (dow == java.util.Calendar.SUNDAY) 6 else dow - java.util.Calendar.MONDAY
         cal.add(java.util.Calendar.DAY_OF_YEAR, -fromMon)
-        for (i in 0..6) {
-            keys.add("pomo_${sdf.format(cal.time)}")
-            cal.add(java.util.Calendar.DAY_OF_YEAR, 1)
-        }
+        for (i in 0..6) { keys.add("pomo_${sdf.format(cal.time)}"); cal.add(java.util.Calendar.DAY_OF_YEAR, 1) }
         return keys
     }
 
     private fun addPomodoroToStats() {
-        val key = getTodayKey()
-        val prefs = getPrefs()
+        val key = getTodayKey(); val prefs = getPrefs()
         prefs.edit().putInt(key, prefs.getInt(key, 0) + 1).apply()
     }
 
     private fun updateStats() {
-        tvTodayCount.text = getPrefs().getInt(getTodayKey(), 0).toString()
+        val settingsPrefs = requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
+        val dailyGoal = settingsPrefs.getInt("daily_goal", 8)
+        val todayCount = getPrefs().getInt(getTodayKey(), 0)
+        tvTodayCount.text = todayCount.toString()
+
+        // Update goal text
+        view?.findViewById<TextView>(R.id.tvDailyGoal)?.text = " / $dailyGoal сессий"
+
         buildMiniChart()
     }
 
@@ -477,17 +532,12 @@ class TimerFragment : Fragment() {
         counts.forEachIndexed { i, count ->
             val barH = if (count == 0) 4 else ((count.toFloat() / max) * 40).toInt().coerceAtLeast(4)
             val bar = View(requireContext())
-            val params = LinearLayout.LayoutParams(
-                (8 * density).toInt(),
-                (barH * density).toInt()
-            ).apply {
+            val params = LinearLayout.LayoutParams((8 * density).toInt(), (barH * density).toInt()).apply {
                 marginStart = if (i > 0) (2 * density).toInt() else 0
                 gravity = android.view.Gravity.BOTTOM
             }
             bar.layoutParams = params
-            bar.setBackgroundResource(
-                if (keys[i] == todayKey) R.drawable.bg_bar_fill else R.drawable.bg_bar_fill_dim
-            )
+            bar.setBackgroundResource(if (keys[i] == todayKey) R.drawable.bg_bar_fill else R.drawable.bg_bar_fill_dim)
             miniChart.addView(bar)
         }
 
@@ -496,8 +546,7 @@ class TimerFragment : Fragment() {
         val dayNames = arrayOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс")
         keys.forEachIndexed { i, key ->
             val tv = TextView(requireContext()).apply {
-                text = dayNames[i]
-                textSize = 8f
+                text = dayNames[i]; textSize = 8f
                 setTextColor(if (key == todayKey) Color.parseColor("#99F97316") else Color.parseColor("#40FFFFFF"))
                 gravity = android.view.Gravity.CENTER
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)

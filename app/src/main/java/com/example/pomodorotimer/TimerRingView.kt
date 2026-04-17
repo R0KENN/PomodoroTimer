@@ -132,13 +132,7 @@ class TimerRingView @JvmOverloads constructor(
             p.maskFilter = null
         }
 
-        // 5 — Glass reflection arc (top highlight)
-        p.style = Paint.Style.STROKE; p.strokeWidth = 12f; p.strokeCap = Paint.Cap.ROUND
-        p.shader = LinearGradient(cx - r * 0.3f, cy - r * 0.6f, cx + r * 0.2f, cy - r * 0.3f,
-            Color.argb(15, 255, 255, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
-        val reflRect = RectF(cx - r * 0.6f, cy - r * 0.6f, cx + r * 0.6f, cy + r * 0.6f)
-        canvas.drawArc(reflRect, -160f, 70f, false, p)
-        p.shader = null
+
 
         // 6 — Floating particles
         if (isTimerRunning) {

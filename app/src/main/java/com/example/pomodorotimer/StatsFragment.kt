@@ -36,10 +36,23 @@ class StatsFragment : Fragment() {
         val weekTotal = weekCounts.sum()
         val streak = calculateStreak()
 
+        // Extended stats
+        val allPomos = AchievementManager.getTotalPomos(getPrefs())
+        val bestDay = AchievementManager.getMaxDailyPomos(getPrefs())
+        val daysWithPomos = getPrefs().all.filter { it.key.startsWith("pomo_") && (it.value as? Int ?: 0) > 0 }.size
+        val avgPerDay = if (daysWithPomos > 0) allPomos.toFloat() / daysWithPomos else 0f
+        val settingsPrefs = requireContext().getSharedPreferences("pomodoro_settings", Context.MODE_PRIVATE)
+        val workMin = settingsPrefs.getInt("work_minutes", 25)
+
         view.findViewById<TextView>(R.id.tvStatsToday).text = todayCount.toString()
         view.findViewById<TextView>(R.id.tvStatsWeek).text = weekTotal.toString()
-        view.findViewById<TextView>(R.id.tvStatsTotalMin).text = "${weekTotal * 25}"
+        view.findViewById<TextView>(R.id.tvStatsTotalMin).text = "${allPomos * workMin}"
         view.findViewById<TextView>(R.id.tvStatsStreak).text = streak.toString()
+
+        // Extended stats
+        view.findViewById<TextView>(R.id.tvStatsTotalAll)?.text = allPomos.toString()
+        view.findViewById<TextView>(R.id.tvStatsBestDay)?.text = bestDay.toString()
+        view.findViewById<TextView>(R.id.tvStatsAvgDay)?.text = String.format("%.1f", avgPerDay)
 
         buildWeekChart(view.findViewById(R.id.weekChartContainer), weekKeys, weekCounts)
     }
@@ -59,15 +72,11 @@ class StatsFragment : Fragment() {
                     marginStart = (3 * d).toInt(); marginEnd = (3 * d).toInt()
                 }
             }
-
-            // Bar track (full height rounded pill)
             val trackH = 120
             val track = FrameLayout(requireContext()).apply {
                 layoutParams = LinearLayout.LayoutParams((16 * d).toInt(), (trackH * d).toInt())
                 setBackgroundResource(R.drawable.bg_bar_track)
             }
-
-            // Fill bar
             val fillH = if (count == 0) 0 else ((count.toFloat() / max) * trackH).toInt().coerceAtLeast(8)
             val fill = View(requireContext()).apply {
                 layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, (fillH * d).toInt()).apply {
@@ -76,20 +85,12 @@ class StatsFragment : Fragment() {
                 setBackgroundResource(if (keys[i] == todayKey) R.drawable.bg_bar_fill else R.drawable.bg_bar_fill_dim)
             }
             track.addView(fill)
-
-            // Day label
             val label = TextView(requireContext()).apply {
-                text = dayNames[i]
-                textSize = 10f
+                text = dayNames[i]; textSize = 10f
                 setTextColor(if (keys[i] == todayKey) Color.parseColor("#66F97316") else Color.parseColor("#40FFFFFF"))
-                gravity = Gravity.CENTER
-                setPadding(0, (8 * d).toInt(), 0, 0)
-                letterSpacing = 0.1f
+                gravity = Gravity.CENTER; setPadding(0, (8 * d).toInt(), 0, 0); letterSpacing = 0.1f
             }
-
-            col.addView(track)
-            col.addView(label)
-            container.addView(col)
+            col.addView(track); col.addView(label); container.addView(col)
         }
     }
 
@@ -109,7 +110,9 @@ class StatsFragment : Fragment() {
         val cal = Calendar.getInstance()
         var s = 0
         for (i in 0..365) {
-            if (getPrefs().getInt("pomo_${sdf.format(cal.time)}", 0) > 0) { s++; cal.add(Calendar.DAY_OF_YEAR, -1) } else break
+            if (getPrefs().getInt("pomo_${sdf.format(cal.time)}", 0) > 0) {
+                s++; cal.add(Calendar.DAY_OF_YEAR, -1)
+            } else break
         }
         return s
     }

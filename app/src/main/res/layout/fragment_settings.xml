@@ -16,144 +16,101 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp">
 
-        <!-- Header -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="32dp">
-
-
-
-        </LinearLayout>
+            android:text="Настройки"
+            android:textColor="@color/text_primary"
+            android:textSize="28sp"
+            android:fontFamily="sans-serif-light"
+            android:layout_marginBottom="24dp"
+            android:layout_gravity="center_horizontal" />
 
         <!-- Sound -->
-        <LinearLayout
-            android:id="@+id/settingSound"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_glass_panel_active"
-            android:padding="20dp"
-            android:gravity="center_vertical"
+        <LinearLayout android:id="@+id/settingSound" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_panel_active" android:padding="20dp" android:gravity="center_vertical"
             android:layout_marginBottom="10dp">
-
-            <ImageView
-                android:id="@+id/iconSound"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_volume"
-                android:layout_marginEnd="16dp" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Звук"
-                android:textColor="@color/text_primary"
-                android:textSize="17sp"
-                android:fontFamily="sans-serif-light"
-                android:letterSpacing="0.03" />
-
-            <Switch
-                android:id="@+id/switchSound"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true" />
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_volume" android:layout_marginEnd="16dp" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="Звук" android:textColor="@color/text_primary" android:textSize="17sp"
+                android:fontFamily="sans-serif-light" android:letterSpacing="0.03" />
+            <Switch android:id="@+id/switchSound" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" />
         </LinearLayout>
 
         <!-- Vibration -->
-        <LinearLayout
-            android:id="@+id/settingVibration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_glass_panel"
-            android:padding="20dp"
-            android:gravity="center_vertical"
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_panel" android:padding="20dp" android:gravity="center_vertical"
             android:layout_marginBottom="10dp">
-
-            <ImageView
-                android:id="@+id/iconVibration"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_vibration"
-                android:layout_marginEnd="16dp" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Вибрация"
-                android:textColor="@color/text_primary"
-                android:textSize="17sp"
-                android:fontFamily="sans-serif-light"
-                android:letterSpacing="0.03" />
-
-            <Switch
-                android:id="@+id/switchVibration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false" />
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_vibration" android:layout_marginEnd="16dp" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="Вибрация" android:textColor="@color/text_primary" android:textSize="17sp"
+                android:fontFamily="sans-serif-light" android:letterSpacing="0.03" />
+            <Switch android:id="@+id/switchVibration" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="false" />
         </LinearLayout>
 
         <!-- Notifications -->
-        <LinearLayout
-            android:id="@+id/settingNotifications"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_glass_panel_active"
-            android:padding="20dp"
-            android:gravity="center_vertical"
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_panel" android:padding="20dp" android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_notifications" android:layout_marginEnd="16dp" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="Уведомления" android:textColor="@color/text_primary" android:textSize="17sp"
+                android:fontFamily="sans-serif-light" android:letterSpacing="0.03" />
+            <Switch android:id="@+id/switchNotifications" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" />
+        </LinearLayout>
+
+        <!-- Auto-start -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_panel_active" android:padding="20dp" android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_skip" android:layout_marginEnd="16dp" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Автостарт" android:textColor="@color/text_primary" android:textSize="17sp"
+                    android:fontFamily="sans-serif-light" android:letterSpacing="0.03" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Автоматически начинать следующий таймер" android:textColor="@color/text_dim"
+                    android:textSize="11sp" android:layout_marginTop="2dp" />
+            </LinearLayout>
+            <Switch android:id="@+id/switchAutoStart" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" />
+        </LinearLayout>
+
+        <!-- Daily Goal -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_panel" android:padding="20dp" android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="Дневная цель" android:textColor="@color/text_primary" android:textSize="17sp"
+                android:fontFamily="sans-serif-light" />
+            <Spinner android:id="@+id/spinnerDailyGoal" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:backgroundTint="@color/accent" />
+        </LinearLayout>
+
+        <!-- Long Break -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_panel" android:padding="20dp" android:gravity="center_vertical"
             android:layout_marginBottom="32dp">
-
-            <ImageView
-                android:id="@+id/iconNotifications"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_notifications"
-                android:layout_marginEnd="16dp" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Уведомления"
-                android:textColor="@color/text_primary"
-                android:textSize="17sp"
-                android:fontFamily="sans-serif-light"
-                android:letterSpacing="0.03" />
-
-            <Switch
-                android:id="@+id/switchNotifications"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Длинный перерыв" android:textColor="@color/text_primary" android:textSize="17sp"
+                    android:fontFamily="sans-serif-light" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Каждые 4 помодоро" android:textColor="@color/text_dim"
+                    android:textSize="11sp" android:layout_marginTop="2dp" />
+            </LinearLayout>
+            <Spinner android:id="@+id/spinnerLongBreak" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:backgroundTint="@color/accent" />
         </LinearLayout>
 
         <!-- Clear Stats -->
-        <LinearLayout
-            android:id="@+id/btnClearStats"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/bg_danger_btn"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_delete"
-                android:layout_marginEnd="10dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ОЧИСТИТЬ СТАТИСТИКУ"
-                android:textColor="@color/danger"
-                android:textSize="12sp"
-                android:fontFamily="sans-serif-medium"
-                android:letterSpacing="0.15" />
+        <LinearLayout android:id="@+id/btnClearStats" android:layout_width="match_parent" android:layout_height="56dp"
+            android:background="@drawable/bg_danger_btn" android:gravity="center" android:clickable="true" android:focusable="true">
+            <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_delete" android:layout_marginEnd="10dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="ОЧИСТИТЬ СТАТИСТИКУ" android:textColor="@color/danger" android:textSize="12sp"
+                android:fontFamily="sans-serif-medium" android:letterSpacing="0.15" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
