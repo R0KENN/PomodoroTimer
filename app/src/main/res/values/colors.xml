@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="bg_primary">#FF000000</color>
+    <color name="bg_surface">#FF131313</color>
+    <color name="bg_card">#FF1A1A1A</color>
+
+    <color name="glass_bg">#0AFFFFFF</color>
+    <color name="glass_border">#0DFFFFFF</color>
+    <color name="glass_highlight">#08FFFFFF</color>
+    <color name="glass_active_bg">#0DF97316</color>
+    <color name="glass_active_border">#26F97316</color>
+
+    <color name="accent">#FFF97316</color>
+    <color name="accent_dark">#FFED6A0C</color>
+    <color name="accent_dim">#33F97316</color>
+    <color name="accent_glow">#66F97316</color>
+    <color name="accent_warm">#FFFFB690</color>
+    <color name="accent_soft">#FFFFA54F</color>
+
+    <color name="break_color">#FF22C55E</color>
+    <color name="break_glow">#6622C55E</color>
+
+    <color name="text_primary">#E6FFFFFF</color>
+    <color name="text_secondary">#99FFFFFF</color>
+    <color name="text_dim">#40FFFFFF</color>
+    <color name="text_muted">#66FFFFFF</color>
+
+    <color name="nav_active">#FFF97316</color>
+    <color name="nav_inactive">#66FFFFFF</color>
+
+    <color name="danger">#FFFF6B6B</color>
+    <color name="danger_bg">#1AEF4444</color>
+    <color name="danger_border">#4D7F1D1D</color>
+
+    <color name="bar_track">#0CFFFFFF</color>
+    <color name="bar_active_start">#99F97316</color>
+    <color name="bar_active_end">#E6F97316</color>
+
+    <color name="status_bar">#FF000000</color>
+    <color name="transparent">#00000000</color>
+</resources>

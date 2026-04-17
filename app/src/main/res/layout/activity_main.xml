@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary">
+
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Floating pill nav -->
+    <LinearLayout
+        android:id="@+id/navBar"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/bg_nav_pill"
+        android:elevation="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
+
+        <FrameLayout
+            android:id="@+id/navTimer"
+            android:layout_width="52dp"
+            android:layout_height="44dp"
+            android:clickable="true"
+            android:focusable="true">
+            <View
+                android:id="@+id/navTimerBg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_nav_item_active" />
+            <ImageView
+                android:id="@+id/navTimerIcon"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_timer_nav" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/navStats"
+            android:layout_width="52dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true">
+            <View
+                android:id="@+id/navStatsBg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_nav_item_active"
+                android:visibility="invisible" />
+            <ImageView
+                android:id="@+id/navStatsIcon"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_stats_nav" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/navSettings"
+            android:layout_width="52dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true">
+            <View
+                android:id="@+id/navSettingsBg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_nav_item_active"
+                android:visibility="invisible" />
+            <ImageView
+                android:id="@+id/navSettingsIcon"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_person_nav" />
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

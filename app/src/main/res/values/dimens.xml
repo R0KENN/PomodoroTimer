@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="timer_size">280dp</dimen>
+    <dimen name="timer_text_size">64sp</dimen>
+    <dimen name="timer_label_size">13sp</dimen>
+    <dimen name="timer_stroke_width">8dp</dimen>
+
+    <dimen name="card_radius">20dp</dimen>
+    <dimen name="card_padding">20dp</dimen>
+    <dimen name="card_margin_h">20dp</dimen>
+
+    <dimen name="btn_radius">16dp</dimen>
+    <dimen name="btn_height">52dp</dimen>
+
+    <dimen name="nav_height">64dp</dimen>
+
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+</resources>
