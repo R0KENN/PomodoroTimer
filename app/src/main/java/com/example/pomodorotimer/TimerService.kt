@@ -137,7 +137,7 @@ class TimerService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_timer_nav)
+            .setSmallIcon(R.drawable.ic_notif_small)
             .setContentTitle("$modeEmoji $modeText — $timeText")
             .setContentText("$statusText  •  🔥 $todayCount/$dailyGoal")
             .setSubText("Sola")
